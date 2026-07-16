@@ -1,0 +1,410 @@
+{
+  "teamMeta": {
+    "RED": "Argentina",
+    "BLUE": "France",
+    "finalScore": "3–3 (Argentina won 4–2 on penalties)",
+    "competition": "2022 World Cup Final"
+  },
+  "events": [
+    {
+      "type": "kickoff",
+      "detail": "period 1 start",
+      "minute": 0,
+      "team": "BLUE",
+      "player": null,
+      "id": 1
+    },
+    {
+      "type": "chance",
+      "detail": "saved, right foot",
+      "minute": 4,
+      "team": "RED",
+      "player": "Allister",
+      "id": 2
+    },
+    {
+      "type": "goal",
+      "detail": "penalty, left foot",
+      "minute": 22,
+      "team": "RED",
+      "player": "Messi",
+      "id": 3
+    },
+    {
+      "type": "goal",
+      "detail": "left foot",
+      "minute": 35,
+      "team": "RED",
+      "player": "Di María",
+      "id": 4
+    },
+    {
+      "type": "sub",
+      "detail": "off Dembélé, on Kolo Muani",
+      "minute": 40,
+      "team": "BLUE",
+      "player": "Dembélé",
+      "id": 5
+    },
+    {
+      "type": "sub",
+      "detail": "off Giroud, on Thuram",
+      "minute": 41,
+      "team": "BLUE",
+      "player": "Giroud",
+      "id": 6
+    },
+    {
+      "type": "card",
+      "detail": "Yellow Card",
+      "minute": 51,
+      "team": "RED",
+      "player": "Enzo Fernández",
+      "id": 7
+    },
+    {
+      "type": "kickoff",
+      "detail": "period 2 start",
+      "minute": 45,
+      "team": "BLUE",
+      "player": null,
+      "id": 8
+    },
+    {
+      "type": "chance",
+      "detail": "saved, right foot",
+      "minute": 48,
+      "team": "RED",
+      "player": "Paul",
+      "id": 9
+    },
+    {
+      "type": "card",
+      "detail": "Yellow Card",
+      "minute": 54,
+      "team": "BLUE",
+      "player": "Rabiot",
+      "id": 10
+    },
+    {
+      "type": "chance",
+      "detail": "saved, left foot",
+      "minute": 58,
+      "team": "RED",
+      "player": "Álvarez",
+      "id": 11
+    },
+    {
+      "type": "sub",
+      "detail": "off Di María, on Acuña",
+      "minute": 63,
+      "team": "RED",
+      "player": "Di María",
+      "id": 12
+    },
+    {
+      "type": "sub",
+      "detail": "off Hernández, on Camavinga",
+      "minute": 70,
+      "team": "BLUE",
+      "player": "Hernández",
+      "id": 13
+    },
+    {
+      "type": "sub",
+      "detail": "off Griezmann, on Coman",
+      "minute": 70,
+      "team": "BLUE",
+      "player": "Griezmann",
+      "id": 14
+    },
+    {
+      "type": "chance",
+      "detail": "saved, right foot",
+      "minute": 71,
+      "team": "RED",
+      "player": "Enzo Fernández",
+      "id": 15
+    },
+    {
+      "type": "goal",
+      "detail": "penalty, right foot",
+      "minute": 79,
+      "team": "BLUE",
+      "player": "Mbappé",
+      "id": 16
+    },
+    {
+      "type": "goal",
+      "detail": "right foot",
+      "minute": 80,
+      "team": "BLUE",
+      "player": "Mbappé",
+      "id": 17
+    },
+    {
+      "type": "card",
+      "detail": "Yellow Card",
+      "minute": 86,
+      "team": "BLUE",
+      "player": "Thuram",
+      "id": 18
+    },
+    {
+      "type": "chance",
+      "detail": "saved, left foot",
+      "minute": 93,
+      "team": "BLUE",
+      "player": "Rabiot",
+      "id": 19
+    },
+    {
+      "type": "card",
+      "detail": "Yellow Card",
+      "minute": 94,
+      "team": "BLUE",
+      "player": "Giroud",
+      "id": 20
+    },
+    {
+      "type": "chance",
+      "detail": "saved, left foot",
+      "minute": 96,
+      "team": "RED",
+      "player": "Messi",
+      "id": 21
+    },
+    {
+      "type": "card",
+      "detail": "Yellow Card",
+      "minute": 97,
+      "team": "RED",
+      "player": "Acuña",
+      "id": 22
+    },
+    {
+      "type": "kickoff",
+      "detail": "period 3 start",
+      "minute": 90,
+      "team": "BLUE",
+      "player": null,
+      "id": 23
+    },
+    {
+      "type": "sub",
+      "detail": "off Lucero, on Montiel",
+      "minute": 90,
+      "team": "RED",
+      "player": "Lucero",
+      "id": 24
+    },
+    {
+      "type": "sub",
+      "detail": "off Rabiot, on Fofana",
+      "minute": 95,
+      "team": "BLUE",
+      "player": "Rabiot",
+      "id": 25
+    },
+    {
+      "type": "sub",
+      "detail": "off Paul, on Paredes",
+      "minute": 101,
+      "team": "RED",
+      "player": "Paul",
+      "id": 26
+    },
+    {
+      "type": "sub",
+      "detail": "off Álvarez, on Martínez",
+      "minute": 101,
+      "team": "RED",
+      "player": "Álvarez",
+      "id": 27
+    },
+    {
+      "type": "kickoff",
+      "detail": "period 4 start",
+      "minute": 105,
+      "team": "BLUE",
+      "player": null,
+      "id": 28
+    },
+    {
+      "type": "chance",
+      "detail": "saved, left foot",
+      "minute": 106,
+      "team": "RED",
+      "player": "Messi",
+      "id": 29
+    },
+    {
+      "type": "chance",
+      "detail": "saved, right foot",
+      "minute": 107,
+      "team": "RED",
+      "player": "Martínez",
+      "id": 30
+    },
+    {
+      "type": "goal",
+      "detail": "right foot",
+      "minute": 107,
+      "team": "RED",
+      "player": "Messi",
+      "id": 31
+    },
+    {
+      "type": "sub",
+      "detail": "off Varane, on Konaté",
+      "minute": 112,
+      "team": "BLUE",
+      "player": "Varane",
+      "id": 32
+    },
+    {
+      "type": "card",
+      "detail": "Yellow Card",
+      "minute": 113,
+      "team": "RED",
+      "player": "Paredes",
+      "id": 33
+    },
+    {
+      "type": "sub",
+      "detail": "off Allister, on Pezzella",
+      "minute": 115,
+      "team": "RED",
+      "player": "Allister",
+      "id": 34
+    },
+    {
+      "type": "card",
+      "detail": "Yellow Card",
+      "minute": 115,
+      "team": "RED",
+      "player": "Montiel",
+      "id": 35
+    },
+    {
+      "type": "goal",
+      "detail": "penalty, right foot",
+      "minute": 117,
+      "team": "BLUE",
+      "player": "Mbappé",
+      "id": 36
+    },
+    {
+      "type": "sub",
+      "detail": "off Koundé, on Disasi",
+      "minute": 120,
+      "team": "BLUE",
+      "player": "Koundé",
+      "id": 37
+    },
+    {
+      "type": "sub",
+      "detail": "off Tagliafico, on Dybala",
+      "minute": 120,
+      "team": "RED",
+      "player": "Tagliafico",
+      "id": 38
+    },
+    {
+      "type": "fulltime",
+      "detail": "3–3 after extra time, to penalties",
+      "minute": 120,
+      "team": null,
+      "player": null,
+      "id": 39
+    },
+    {
+      "type": "chance",
+      "detail": "saved, right foot",
+      "minute": 122,
+      "team": "BLUE",
+      "player": "Kolo Muani",
+      "id": 40
+    },
+    {
+      "type": "kickoff",
+      "detail": "period 5 start",
+      "minute": 120,
+      "team": "BLUE",
+      "player": null,
+      "id": 41
+    },
+    {
+      "type": "penalty",
+      "detail": "penalty Goal",
+      "minute": 120,
+      "team": "BLUE",
+      "player": "Mbappé",
+      "id": 42
+    },
+    {
+      "type": "penalty",
+      "detail": "penalty Goal",
+      "minute": 121,
+      "team": "RED",
+      "player": "Messi",
+      "id": 43
+    },
+    {
+      "type": "penalty",
+      "detail": "penalty Saved",
+      "minute": 121,
+      "team": "BLUE",
+      "player": "Coman",
+      "id": 44
+    },
+    {
+      "type": "penalty",
+      "detail": "penalty Goal",
+      "minute": 122,
+      "team": "RED",
+      "player": "Dybala",
+      "id": 45
+    },
+    {
+      "type": "penalty",
+      "detail": "penalty Off T",
+      "minute": 123,
+      "team": "BLUE",
+      "player": "Tchouaméni",
+      "id": 46
+    },
+    {
+      "type": "penalty",
+      "detail": "penalty Goal",
+      "minute": 124,
+      "team": "RED",
+      "player": "Paredes",
+      "id": 47
+    },
+    {
+      "type": "card",
+      "detail": "Yellow Card",
+      "minute": 124,
+      "team": "RED",
+      "player": "Martínez",
+      "id": 48
+    },
+    {
+      "type": "penalty",
+      "detail": "penalty Goal",
+      "minute": 125,
+      "team": "BLUE",
+      "player": "Kolo Muani",
+      "id": 49
+    },
+    {
+      "type": "penalty",
+      "detail": "penalty Goal",
+      "minute": 125,
+      "team": "RED",
+      "player": "Montiel",
+      "id": 50
+    }
+  ]
+}
