@@ -1,10 +1,11 @@
 {
   "teamMeta": {
-    "RED": "Argentina",
-    "BLUE": "France",
-    "finalScore": "3–3 (Argentina won 4–2 on penalties)",
-    "competition": "2022 World Cup Final"
-  },
+  "RED": { "supports": "Argentina" },
+  "BLUE": { "supports": "France" },
+  "venue": "Lusail Stadium",
+  "finalScore": "3–3 (Argentina won 4–2 on penalties)",
+  "competition": "2022 World Cup Final"
+},
   "events": [
     {
       "type": "kickoff",
