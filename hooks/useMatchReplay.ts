@@ -40,8 +40,14 @@ const SECONDS_PER_MATCH_MINUTE_AT_1X = 60;
 
 // Real match lulls (e.g. an 18-minute gap with no scripted event) would
 // otherwise stall the replay for minutes at a time. Cap every gap so the
-// commentary keeps flowing continuously for a demo.
-const MAX_GAP_MS = 4000;
+// commentary keeps flowing continuously for a demo. The cap scales with
+// speed so 1x/10x/30x still feel meaningfully different from each other
+// instead of all collapsing to the same capped wait.
+const MAX_GAP_MS_BY_SPEED: Record<ReplaySpeed, number> = {
+  1: 15000,
+  10: 8000,
+  30: 4000,
+};
 
 function sleepInterruptible(
   ms: number,
@@ -229,7 +235,7 @@ export function useMatchReplay(): UseMatchReplayResult {
         const delayMs = Math.min(
           (deltaMinutes * SECONDS_PER_MATCH_MINUTE_AT_1X * 1000) /
             speedRef.current,
-          MAX_GAP_MS
+          MAX_GAP_MS_BY_SPEED[speedRef.current]
         );
 
         const banterPromise =
