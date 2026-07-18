@@ -250,7 +250,14 @@ export function useMatchReplay(): UseMatchReplayResult {
 
         if (isCancelled()) return;
 
-        displayMinute = Math.max(displayMinute, event.minute);
+        // Kickoff events mark a new period starting — the clock should
+        // reset to that period's own minute (e.g. 45' for second half),
+        // same as a real broadcast, even if the previous period's stoppage
+        // time ran past it. Every other event still only moves forward.
+        displayMinute =
+          event.type === "kickoff"
+            ? event.minute
+            : Math.max(displayMinute, event.minute);
         setCurrentMinute(displayMinute);
         setCurrentEvent(event);
 
