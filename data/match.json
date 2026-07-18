@@ -1,11 +1,15 @@
 {
   "teamMeta": {
-  "RED": { "supports": "Argentina" },
-  "BLUE": { "supports": "France" },
-  "venue": "Lusail Stadium",
-  "finalScore": "3–3 (Argentina won 4–2 on penalties)",
-  "competition": "2022 World Cup Final"
-},
+    "RED": {
+      "supports": "Argentina"
+    },
+    "BLUE": {
+      "supports": "France"
+    },
+    "venue": "Lusail Stadium",
+    "finalScore": "3–3 (Argentina won 4–2 on penalties)",
+    "competition": "2022 World Cup Final"
+  },
   "events": [
     {
       "type": "kickoff",
@@ -13,7 +17,8 @@
       "minute": 0,
       "team": "BLUE",
       "player": null,
-      "id": 1
+      "id": 1,
+      "displayMinute": 0
     },
     {
       "type": "chance",
@@ -21,7 +26,8 @@
       "minute": 4,
       "team": "RED",
       "player": "Allister",
-      "id": 2
+      "id": 2,
+      "displayMinute": 4
     },
     {
       "type": "goal",
@@ -29,7 +35,8 @@
       "minute": 22,
       "team": "RED",
       "player": "Messi",
-      "id": 3
+      "id": 3,
+      "displayMinute": 22
     },
     {
       "type": "goal",
@@ -37,7 +44,8 @@
       "minute": 35,
       "team": "RED",
       "player": "Di María",
-      "id": 4
+      "id": 4,
+      "displayMinute": 35
     },
     {
       "type": "sub",
@@ -45,7 +53,8 @@
       "minute": 40,
       "team": "BLUE",
       "player": "Dembélé",
-      "id": 5
+      "id": 5,
+      "displayMinute": 40
     },
     {
       "type": "sub",
@@ -53,7 +62,8 @@
       "minute": 41,
       "team": "BLUE",
       "player": "Giroud",
-      "id": 6
+      "id": 6,
+      "displayMinute": 41
     },
     {
       "type": "card",
@@ -61,7 +71,8 @@
       "minute": 51,
       "team": "RED",
       "player": "Enzo Fernández",
-      "id": 7
+      "id": 7,
+      "displayMinute": 45
     },
     {
       "type": "kickoff",
@@ -69,7 +80,8 @@
       "minute": 45,
       "team": "BLUE",
       "player": null,
-      "id": 8
+      "id": 8,
+      "displayMinute": 45
     },
     {
       "type": "chance",
@@ -77,7 +89,8 @@
       "minute": 48,
       "team": "RED",
       "player": "Paul",
-      "id": 9
+      "id": 9,
+      "displayMinute": 48
     },
     {
       "type": "card",
@@ -85,7 +98,8 @@
       "minute": 54,
       "team": "BLUE",
       "player": "Rabiot",
-      "id": 10
+      "id": 10,
+      "displayMinute": 54
     },
     {
       "type": "chance",
@@ -93,7 +107,8 @@
       "minute": 58,
       "team": "RED",
       "player": "Álvarez",
-      "id": 11
+      "id": 11,
+      "displayMinute": 58
     },
     {
       "type": "sub",
@@ -101,7 +116,8 @@
       "minute": 63,
       "team": "RED",
       "player": "Di María",
-      "id": 12
+      "id": 12,
+      "displayMinute": 63
     },
     {
       "type": "sub",
@@ -109,7 +125,8 @@
       "minute": 70,
       "team": "BLUE",
       "player": "Hernández",
-      "id": 13
+      "id": 13,
+      "displayMinute": 70
     },
     {
       "type": "sub",
@@ -117,7 +134,8 @@
       "minute": 70,
       "team": "BLUE",
       "player": "Griezmann",
-      "id": 14
+      "id": 14,
+      "displayMinute": 70
     },
     {
       "type": "chance",
@@ -125,7 +143,8 @@
       "minute": 71,
       "team": "RED",
       "player": "Enzo Fernández",
-      "id": 15
+      "id": 15,
+      "displayMinute": 71
     },
     {
       "type": "goal",
@@ -133,7 +152,8 @@
       "minute": 79,
       "team": "BLUE",
       "player": "Mbappé",
-      "id": 16
+      "id": 16,
+      "displayMinute": 79
     },
     {
       "type": "goal",
@@ -141,7 +161,8 @@
       "minute": 80,
       "team": "BLUE",
       "player": "Mbappé",
-      "id": 17
+      "id": 17,
+      "displayMinute": 80
     },
     {
       "type": "card",
@@ -149,7 +170,8 @@
       "minute": 86,
       "team": "BLUE",
       "player": "Thuram",
-      "id": 18
+      "id": 18,
+      "displayMinute": 86
     },
     {
       "type": "chance",
@@ -157,7 +179,8 @@
       "minute": 93,
       "team": "BLUE",
       "player": "Rabiot",
-      "id": 19
+      "id": 19,
+      "displayMinute": 90
     },
     {
       "type": "card",
@@ -165,7 +188,8 @@
       "minute": 94,
       "team": "BLUE",
       "player": "Giroud",
-      "id": 20
+      "id": 20,
+      "displayMinute": 90
     },
     {
       "type": "chance",
@@ -173,7 +197,8 @@
       "minute": 96,
       "team": "RED",
       "player": "Messi",
-      "id": 21
+      "id": 21,
+      "displayMinute": 90
     },
     {
       "type": "card",
@@ -181,7 +206,8 @@
       "minute": 97,
       "team": "RED",
       "player": "Acuña",
-      "id": 22
+      "id": 22,
+      "displayMinute": 90
     },
     {
       "type": "kickoff",
@@ -189,7 +215,8 @@
       "minute": 90,
       "team": "BLUE",
       "player": null,
-      "id": 23
+      "id": 23,
+      "displayMinute": 90
     },
     {
       "type": "sub",
@@ -197,7 +224,8 @@
       "minute": 90,
       "team": "RED",
       "player": "Lucero",
-      "id": 24
+      "id": 24,
+      "displayMinute": 90
     },
     {
       "type": "sub",
@@ -205,7 +233,8 @@
       "minute": 95,
       "team": "BLUE",
       "player": "Rabiot",
-      "id": 25
+      "id": 25,
+      "displayMinute": 95
     },
     {
       "type": "sub",
@@ -213,7 +242,8 @@
       "minute": 101,
       "team": "RED",
       "player": "Paul",
-      "id": 26
+      "id": 26,
+      "displayMinute": 101
     },
     {
       "type": "sub",
@@ -221,7 +251,8 @@
       "minute": 101,
       "team": "RED",
       "player": "Álvarez",
-      "id": 27
+      "id": 27,
+      "displayMinute": 101
     },
     {
       "type": "kickoff",
@@ -229,7 +260,8 @@
       "minute": 105,
       "team": "BLUE",
       "player": null,
-      "id": 28
+      "id": 28,
+      "displayMinute": 105
     },
     {
       "type": "chance",
@@ -237,7 +269,8 @@
       "minute": 106,
       "team": "RED",
       "player": "Messi",
-      "id": 29
+      "id": 29,
+      "displayMinute": 106
     },
     {
       "type": "chance",
@@ -245,7 +278,8 @@
       "minute": 107,
       "team": "RED",
       "player": "Martínez",
-      "id": 30
+      "id": 30,
+      "displayMinute": 107
     },
     {
       "type": "goal",
@@ -253,7 +287,8 @@
       "minute": 107,
       "team": "RED",
       "player": "Messi",
-      "id": 31
+      "id": 31,
+      "displayMinute": 107
     },
     {
       "type": "sub",
@@ -261,7 +296,8 @@
       "minute": 112,
       "team": "BLUE",
       "player": "Varane",
-      "id": 32
+      "id": 32,
+      "displayMinute": 112
     },
     {
       "type": "card",
@@ -269,7 +305,8 @@
       "minute": 113,
       "team": "RED",
       "player": "Paredes",
-      "id": 33
+      "id": 33,
+      "displayMinute": 113
     },
     {
       "type": "sub",
@@ -277,7 +314,8 @@
       "minute": 115,
       "team": "RED",
       "player": "Allister",
-      "id": 34
+      "id": 34,
+      "displayMinute": 115
     },
     {
       "type": "card",
@@ -285,7 +323,8 @@
       "minute": 115,
       "team": "RED",
       "player": "Montiel",
-      "id": 35
+      "id": 35,
+      "displayMinute": 115
     },
     {
       "type": "goal",
@@ -293,7 +332,8 @@
       "minute": 117,
       "team": "BLUE",
       "player": "Mbappé",
-      "id": 36
+      "id": 36,
+      "displayMinute": 117
     },
     {
       "type": "sub",
@@ -301,7 +341,8 @@
       "minute": 120,
       "team": "BLUE",
       "player": "Koundé",
-      "id": 37
+      "id": 37,
+      "displayMinute": 120
     },
     {
       "type": "sub",
@@ -309,7 +350,8 @@
       "minute": 120,
       "team": "RED",
       "player": "Tagliafico",
-      "id": 38
+      "id": 38,
+      "displayMinute": 120
     },
     {
       "type": "fulltime",
@@ -317,7 +359,8 @@
       "minute": 120,
       "team": null,
       "player": null,
-      "id": 39
+      "id": 39,
+      "displayMinute": 120
     },
     {
       "type": "chance",
@@ -325,7 +368,8 @@
       "minute": 122,
       "team": "BLUE",
       "player": "Kolo Muani",
-      "id": 40
+      "id": 40,
+      "displayMinute": 120
     },
     {
       "type": "kickoff",
@@ -333,7 +377,8 @@
       "minute": 120,
       "team": "BLUE",
       "player": null,
-      "id": 41
+      "id": 41,
+      "displayMinute": 120
     },
     {
       "type": "penalty",
@@ -341,7 +386,8 @@
       "minute": 120,
       "team": "BLUE",
       "player": "Mbappé",
-      "id": 42
+      "id": 42,
+      "displayMinute": 120
     },
     {
       "type": "penalty",
@@ -349,7 +395,8 @@
       "minute": 121,
       "team": "RED",
       "player": "Messi",
-      "id": 43
+      "id": 43,
+      "displayMinute": 121
     },
     {
       "type": "penalty",
@@ -357,7 +404,8 @@
       "minute": 121,
       "team": "BLUE",
       "player": "Coman",
-      "id": 44
+      "id": 44,
+      "displayMinute": 121
     },
     {
       "type": "penalty",
@@ -365,7 +413,8 @@
       "minute": 122,
       "team": "RED",
       "player": "Dybala",
-      "id": 45
+      "id": 45,
+      "displayMinute": 122
     },
     {
       "type": "penalty",
@@ -373,7 +422,8 @@
       "minute": 123,
       "team": "BLUE",
       "player": "Tchouaméni",
-      "id": 46
+      "id": 46,
+      "displayMinute": 123
     },
     {
       "type": "penalty",
@@ -381,7 +431,8 @@
       "minute": 124,
       "team": "RED",
       "player": "Paredes",
-      "id": 47
+      "id": 47,
+      "displayMinute": 124
     },
     {
       "type": "card",
@@ -389,7 +440,8 @@
       "minute": 124,
       "team": "RED",
       "player": "Martínez",
-      "id": 48
+      "id": 48,
+      "displayMinute": 124
     },
     {
       "type": "penalty",
@@ -397,7 +449,8 @@
       "minute": 125,
       "team": "BLUE",
       "player": "Kolo Muani",
-      "id": 49
+      "id": 49,
+      "displayMinute": 125
     },
     {
       "type": "penalty",
@@ -405,7 +458,8 @@
       "minute": 125,
       "team": "RED",
       "player": "Montiel",
-      "id": 50
+      "id": 50,
+      "displayMinute": 125
     }
   ]
 }

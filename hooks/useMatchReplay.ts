@@ -215,11 +215,6 @@ export function useMatchReplay(): UseMatchReplayResult {
 
       const events = typedMatchData.events;
       let prevMinute = 0;
-      // Stoppage-time events (e.g. a card at raw minute 51, still first-half
-      // added time) can appear before the next period's kickoff in event
-      // order. Kickoff events reset the displayed minute to their own value
-      // (like a real broadcast clock resetting at half-time).
-      let displayMinute = 0;
       // Holds the in-flight fetch for the event we're about to process,
       // kicked off during the PREVIOUS iteration's audio playback. This
       // overlaps Gemini's network/generation latency with playback and the
@@ -250,11 +245,7 @@ export function useMatchReplay(): UseMatchReplayResult {
 
         if (isCancelled()) return;
 
-        displayMinute =
-          event.type === "kickoff"
-            ? event.minute
-            : Math.max(displayMinute, event.minute);
-        setCurrentMinute(displayMinute);
+        setCurrentMinute(event.displayMinute);
         setCurrentEvent(event);
 
         if (event.type === "goal" && event.team) {
@@ -272,7 +263,7 @@ export function useMatchReplay(): UseMatchReplayResult {
           ? fetchBanter(nextEvent, false, i + 2 === events.length)
           : null;
 
-        await playExchange(lines, displayMinute, isCancelled);
+        await playExchange(lines, event.displayMinute, isCancelled);
         if (isCancelled()) return;
       }
 

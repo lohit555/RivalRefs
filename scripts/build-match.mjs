@@ -230,9 +230,24 @@ async function main() {
     return a.second - b.second;
   });
 
+  // Nominal end-of-period minute, like a real broadcast clock. Stoppage
+  // time within a period (e.g. a card at raw minute 51, still first-half
+  // added time) is capped to the period's own nominal end instead of its
+  // true raw minute, so the on-screen clock never appears to run past the
+  // next period's kickoff. Kickoff events always display their own minute.
+  const PERIOD_NOMINAL_END = { 1: 45, 2: 90, 3: 105, 4: 120, 5: Infinity };
+  let periodNominalEnd = PERIOD_NOMINAL_END[1];
+
   const events = kept.map((e, i) => {
     const { period, second, ...rest } = e;
-    return { id: i + 1, ...rest };
+    let displayMinute;
+    if (e.type === "kickoff") {
+      periodNominalEnd = PERIOD_NOMINAL_END[period] ?? e.minute;
+      displayMinute = e.minute;
+    } else {
+      displayMinute = Math.min(e.minute, periodNominalEnd);
+    }
+    return { id: i + 1, ...rest, displayMinute };
   });
 
   const teamMeta = {

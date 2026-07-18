@@ -12,6 +12,11 @@ export type EventType =
 export interface MatchEvent {
   id?: number;
   minute: number;
+  // Pre-computed display minute (see data/match.json) — stoppage time is
+  // capped to the current period's nominal end, so this value only ever
+  // increases across the whole match. Always use this for on-screen display
+  // instead of `minute`, which can run past the next period's kickoff.
+  displayMinute: number;
   type: EventType;
   team: Speaker | null;
   player: string;
