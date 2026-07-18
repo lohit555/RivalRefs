@@ -8,7 +8,12 @@ export const runtime = "nodejs";
 // Each model draws from its own separate free-tier quota. If the primary
 // model's daily quota is exhausted (HTTP 429 / RESOURCE_EXHAUSTED), fall
 // through to the next one instead of giving up immediately.
-const MODEL_CHAIN = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-3-flash-preview"];
+const MODEL_CHAIN = [
+  "gemini-2.5-flash",
+  "gemini-flash-latest",
+  "gemini-3-flash-preview",
+  "gemini-flash-lite-latest",
+];
 
 function fallbackLine(body: BanterRequestBody | null): BanterLine[] {
   const team = body?.event?.team;
