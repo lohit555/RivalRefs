@@ -1,19 +1,23 @@
+import { isSpeechSupported } from "./speech";
+import type { SpeakerVoiceProfile } from "./speech";
+
 export interface QueueItem {
-  audioUrl?: string;
+  text: string;
+  voiceProfile: SpeakerVoiceProfile | null;
   onStart?: () => void;
   onEnd?: () => void;
 }
 
 /**
- * Plays audio items strictly one at a time. If an item has no audioUrl
- * (TTS failed), it "plays" for a short fixed duration so the transcript
- * still advances and the demo never stalls waiting on missing audio.
+ * Speaks items strictly one at a time via the browser's Web Speech API.
+ * If speech synthesis isn't supported, an item "plays" for a short fixed
+ * duration so the transcript still advances and the demo never stalls.
  */
 export class AudioQueue {
   private queue: QueueItem[] = [];
   private playing = false;
-  private currentAudio: HTMLAudioElement | null = null;
   private stopped = false;
+  private supported = isSpeechSupported();
 
   enqueue(item: QueueItem) {
     this.queue.push(item);
@@ -34,8 +38,8 @@ export class AudioQueue {
     item.onStart?.();
 
     try {
-      if (item.audioUrl) {
-        await this.playAudioUrl(item.audioUrl);
+      if (this.supported) {
+        await this.speak(item);
       } else {
         await this.wait(1400);
       }
@@ -52,36 +56,32 @@ export class AudioQueue {
     }
   }
 
-  private playAudioUrl(url: string): Promise<void> {
+  private speak(item: QueueItem): Promise<void> {
     return new Promise((resolve) => {
-      const audio = new Audio(url);
-      this.currentAudio = audio;
+      const utterance = new SpeechSynthesisUtterance(item.text);
+      if (item.voiceProfile?.voice) {
+        utterance.voice = item.voiceProfile.voice;
+      }
+      utterance.pitch = item.voiceProfile?.pitch ?? 1;
+      utterance.rate = item.voiceProfile?.rate ?? 1;
 
       const cleanup = () => {
-        audio.removeEventListener("ended", onEnded);
-        audio.removeEventListener("error", onError);
-        if (this.currentAudio === audio) {
-          this.currentAudio = null;
-        }
+        utterance.removeEventListener("end", onEnd);
+        utterance.removeEventListener("error", onError);
       };
-
-      const onEnded = () => {
+      const onEnd = () => {
         cleanup();
         resolve();
       };
-
       const onError = () => {
         cleanup();
         resolve();
       };
 
-      audio.addEventListener("ended", onEnded);
-      audio.addEventListener("error", onError);
+      utterance.addEventListener("end", onEnd);
+      utterance.addEventListener("error", onError);
 
-      audio.play().catch(() => {
-        cleanup();
-        resolve();
-      });
+      window.speechSynthesis.speak(utterance);
     });
   }
 
@@ -96,20 +96,17 @@ export class AudioQueue {
   }
 
   pause() {
-    this.currentAudio?.pause();
+    if (this.supported) window.speechSynthesis.pause();
   }
 
   resume() {
-    this.currentAudio?.play().catch(() => {});
+    if (this.supported) window.speechSynthesis.resume();
   }
 
   clear() {
     this.stopped = true;
     this.queue = [];
-    if (this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio = null;
-    }
+    if (this.supported) window.speechSynthesis.cancel();
     this.playing = false;
   }
 

@@ -44,7 +44,7 @@ export interface BanterLine {
 export interface TranscriptEntry extends BanterLine {
   id: string;
   minute: number;
-  audioUrl?: string;
+  voiced: boolean;
 }
 
 export interface BanterRequestBody {
@@ -53,9 +53,11 @@ export interface BanterRequestBody {
     events: MatchEvent[];
     lines: BanterLine[];
   };
-}
-
-export interface TtsRequestBody {
-  speaker: Speaker;
-  text: string;
+  matchMeta?: {
+    redTeam: string;
+    blueTeam: string;
+    finalScore: string;
+    isFirstEvent: boolean;
+    isFinalEvent: boolean;
+  };
 }

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import matchData from "@/data/match.json";
 import { AudioQueue } from "@/lib/audioQueue";
+import { getSpeakerVoices, isSpeechSupported } from "@/lib/speech";
+import type { SpeakerVoiceProfile } from "@/lib/speech";
 import type {
   BanterLine,
   MatchData,
@@ -35,6 +37,11 @@ interface UseMatchReplayResult {
 // At 10x (default), that's 6 real seconds/match-minute, so a 90-min
 // match completes in ~9 real minutes, as spec'd.
 const SECONDS_PER_MATCH_MINUTE_AT_1X = 60;
+
+// Real match lulls (e.g. an 18-minute gap with no scripted event) would
+// otherwise stall the replay for minutes at a time. Cap every gap so the
+// commentary keeps flowing continuously for a demo.
+const MAX_GAP_MS = 4000;
 
 function sleepInterruptible(
   ms: number,
@@ -89,6 +96,9 @@ export function useMatchReplay(): UseMatchReplayResult {
   const runningRef = useRef(false);
   const runIdRef = useRef(0);
   const audioQueueRef = useRef<AudioQueue | null>(null);
+  const voiceProfilesRef = useRef<Record<Speaker, SpeakerVoiceProfile> | null>(
+    null
+  );
   const historyRef = useRef<{ events: MatchEvent[]; lines: BanterLine[] }>({
     events: [],
     lines: [],
@@ -96,6 +106,9 @@ export function useMatchReplay(): UseMatchReplayResult {
 
   useEffect(() => {
     audioQueueRef.current = new AudioQueue();
+    getSpeakerVoices().then((profiles) => {
+      voiceProfilesRef.current = profiles;
+    });
     return () => {
       audioQueueRef.current?.clear();
     };
@@ -110,7 +123,11 @@ export function useMatchReplay(): UseMatchReplayResult {
   }, []);
 
   const fetchBanter = useCallback(
-    async (event: MatchEvent): Promise<BanterLine[]> => {
+    async (
+      event: MatchEvent,
+      isFirstEvent: boolean,
+      isFinalEvent: boolean
+    ): Promise<BanterLine[]> => {
       try {
         const res = await fetch("/api/banter", {
           method: "POST",
@@ -118,6 +135,13 @@ export function useMatchReplay(): UseMatchReplayResult {
           body: JSON.stringify({
             event,
             history: historyRef.current,
+            matchMeta: {
+              redTeam: typedMatchData.teamMeta.RED.supports,
+              blueTeam: typedMatchData.teamMeta.BLUE.supports,
+              finalScore: typedMatchData.teamMeta.finalScore,
+              isFirstEvent,
+              isFinalEvent,
+            },
           }),
         });
         if (!res.ok) throw new Error("banter request failed");
@@ -132,28 +156,9 @@ export function useMatchReplay(): UseMatchReplayResult {
         return [
           {
             speaker,
-            line: "Big moment there — booth's lost for words, but the match rolls on!",
+            line: "Big moment there, booth's lost for words, but the match rolls on!",
           },
         ];
-      }
-    },
-    []
-  );
-
-  const fetchTts = useCallback(
-    async (speaker: Speaker, text: string): Promise<string | undefined> => {
-      try {
-        const res = await fetch("/api/tts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ speaker, text }),
-        });
-        if (!res.ok) throw new Error("tts request failed");
-        const blob = await res.blob();
-        return URL.createObjectURL(blob);
-      } catch (err) {
-        console.error("TTS fetch failed, falling back to text-only:", err);
-        return undefined;
       }
     },
     []
@@ -167,15 +172,12 @@ export function useMatchReplay(): UseMatchReplayResult {
       for (const line of lines) {
         if (isCancelled()) return;
 
-        const audioUrl = await fetchTts(line.speaker, line.line);
-        if (isCancelled()) return;
-
         const entry: TranscriptEntry = {
           id: nextId(),
           minute,
           speaker: line.speaker,
           line: line.line,
-          audioUrl,
+          voiced: isSpeechSupported(),
         };
         setTranscript((prev) => [...prev, entry]);
         historyRef.current.lines.push({
@@ -185,7 +187,8 @@ export function useMatchReplay(): UseMatchReplayResult {
 
         await new Promise<void>((resolve) => {
           queue.enqueue({
-            audioUrl,
+            text: line.line,
+            voiceProfile: voiceProfilesRef.current?.[line.speaker] ?? null,
             onStart: () => setActiveSpeaker(line.speaker),
             onEnd: () => {
               setActiveSpeaker(null);
@@ -197,7 +200,7 @@ export function useMatchReplay(): UseMatchReplayResult {
         if (isCancelled()) return;
       }
     },
-    [fetchTts]
+    []
   );
 
   const runReplay = useCallback(
@@ -206,17 +209,31 @@ export function useMatchReplay(): UseMatchReplayResult {
 
       const events = typedMatchData.events;
       let prevMinute = 0;
+      // Holds the in-flight fetch for the event we're about to process,
+      // kicked off during the PREVIOUS iteration's audio playback. This
+      // overlaps Gemini's network/generation latency with playback and the
+      // pacing wait instead of stacking it on top, so gaps feel much shorter
+      // without making any extra API calls.
+      let pendingBanter: Promise<BanterLine[]> | null = null;
 
       for (let i = 0; i < events.length; i += 1) {
         if (isCancelled()) return;
 
         const event = events[i];
+        const isFirstEvent = i === 0;
+        const isFinalEvent = i === events.length - 1;
+
         const deltaMinutes = Math.max(event.minute - prevMinute, 0);
         prevMinute = event.minute;
 
-        const delayMs =
+        const delayMs = Math.min(
           (deltaMinutes * SECONDS_PER_MATCH_MINUTE_AT_1X * 1000) /
-          speedRef.current;
+            speedRef.current,
+          MAX_GAP_MS
+        );
+
+        const banterPromise =
+          pendingBanter ?? fetchBanter(event, isFirstEvent, isFinalEvent);
 
         await sleepInterruptible(delayMs, isCancelled, () => pausedRef.current);
 
@@ -230,13 +247,18 @@ export function useMatchReplay(): UseMatchReplayResult {
           setScore((prev) => ({ ...prev, [team]: prev[team] + 1 }));
         }
 
-        const lines = await fetchBanter(event);
-        if (isCancelled()) return;
-
-        await playExchange(lines, event.minute, isCancelled);
+        const lines = await banterPromise;
         if (isCancelled()) return;
 
         historyRef.current.events.push(event);
+
+        const nextEvent = events[i + 1];
+        pendingBanter = nextEvent
+          ? fetchBanter(nextEvent, false, i + 2 === events.length)
+          : null;
+
+        await playExchange(lines, event.minute, isCancelled);
+        if (isCancelled()) return;
       }
 
       runningRef.current = false;

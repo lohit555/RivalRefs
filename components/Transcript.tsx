@@ -38,7 +38,7 @@ export default function Transcript({ entries }: TranscriptProps) {
                 {entry.speaker}
               </span>
               <span className="text-white/80">{entry.line}</span>
-              {!entry.audioUrl && (
+              {!entry.voiced && (
                 <span className="shrink-0 text-[10px] italic text-white/25">
                   (text only)
                 </span>
