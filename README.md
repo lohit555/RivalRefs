@@ -1,19 +1,24 @@
 # Rival Refs
 
 An AI football commentary app: two rival AI commentators (RED and BLUE) trade
-banter over a pre-recorded match, replayed on a clock as if it were live.
+roast-battle banter over a pre-recorded match, replayed on a clock as if it
+were live.
 
 A finished match is stored as a JSON timeline (`/data/match.json`). The app
-walks that timeline on a fast-forward clock. On each event it calls Claude
-once to generate a short back-and-forth exchange, converts each line to
-speech with ElevenLabs, and plays the lines back-to-back on a split-screen
-broadcast UI while a transcript scrolls underneath.
+walks that timeline on a fast-forward clock. On each event it calls Gemini
+once to generate a short back-and-forth exchange, speaks each line out loud
+with the browser's built-in Web Speech API, and plays the lines back-to-back
+on a split-screen broadcast UI while a transcript scrolls underneath.
 
 ## Stack
 
-- Next.js 14 (App Router) + TypeScript + Tailwind
-- `@anthropic-ai/sdk` for banter generation (`claude-haiku-4-5-20251001`)
-- ElevenLabs REST API for text-to-speech (two voice IDs, one per commentator)
+- Next.js (App Router) + TypeScript + Tailwind
+- `@google/genai` for banter generation, with a model fallback chain
+  (`gemini-2.5-flash` → `gemini-flash-latest` → `gemini-3-flash-preview` →
+  `gemini-flash-lite-latest`) since each model has its own separate free-tier
+  daily quota
+- The browser's native Web Speech API (`speechSynthesis`) for text-to-speech —
+  no API key, no account, no cost, works out of the box in any modern browser
 - No database — everything lives in React state for the duration of a replay
 
 ## Setup
@@ -22,7 +27,7 @@ broadcast UI while a transcript scrolls underneath.
 npm install
 ```
 
-Fill in your API keys in `.env.local` (see below), then:
+Fill in your API key in `.env.local` (see below), then:
 
 ```bash
 npm run dev
@@ -30,39 +35,37 @@ npm run dev
 
 Open http://localhost:3000, hit **Start**, and the replay begins.
 
-## Where to paste your keys
+## Where to paste your key
 
-Open **`.env.local`** in the project root and fill in these two blank values
-(the other two — the persona prompts — are handled separately, see below):
+Open **`.env.local`** in the project root and fill in the one blank value
+(the persona prompts are handled separately, see below):
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...        # <- paste your Anthropic API key here
-ELEVENLABS_API_KEY=...              # <- paste your ElevenLabs API key here
-ELEVENLABS_VOICE_ID_RED=...         # <- ElevenLabs voice ID for the RED commentator
-ELEVENLABS_VOICE_ID_BLUE=...        # <- ElevenLabs voice ID for the BLUE commentator
+GEMINI_API_KEY=...        # <- paste your Gemini API key here
 ```
 
-All four keys are read **server-side only** (inside the two API routes in
-`/app/api`). None of them are ever sent to the client or bundled into
-client-side JS.
+Get a free key at [Google AI Studio](https://aistudio.google.com/apikey) — no
+credit card required for the free tier. The key is read **server-side only**
+(inside `/app/api/banter/route.ts`). It's never sent to the client or bundled
+into client-side JS.
 
-`.env.example` mirrors this file with blank values and is safe to commit.
+The Web Speech API needs no key at all — it's built into the browser.
+
+`.env.example` mirrors this file with a blank value and is safe to commit.
 `.env.local` is git-ignored.
 
 ## Where your teammate edits the commentator personas
 
-Open **`/lib/personas.ts`**. It exports two placeholder constants:
+Open **`/lib/personas.ts`**. It exports two constants:
 
 ```ts
-export const RED_SYSTEM_PROMPT = `TODO_RED_PERSONA`;
-export const BLUE_SYSTEM_PROMPT = `TODO_BLUE_PERSONA`;
+export const RED_SYSTEM_PROMPT = `...`;
+export const BLUE_SYSTEM_PROMPT = `...`;
 ```
 
-Your teammate should replace the placeholder strings with the real persona
-system prompts (voice, tone, catchphrases, rivalry angle, etc.). Both are
-marked with `// Owned by teammate — do not overwrite` comments. Every other
-part of the app imports these two constants — dropping in the real text is
-the *only* change needed; no other files need to be touched.
+Both are marked with `// Owned by teammate — do not overwrite` comments.
+Every other part of the app imports these two constants — editing the
+persona text is the *only* change needed; no other files need to be touched.
 
 ## How it works
 
@@ -73,24 +76,29 @@ the *only* change needed; no other files need to be touched.
    [StatsBomb open data](https://github.com/statsbomb/open-data) (free,
    no API key) via `scripts/build-match.mjs` — see below.
 2. **`hooks/useMatchReplay.ts`** — walks the timeline on a clock. Default
-   speed is 10x (a 90-minute match plays in ~9 real minutes); 1x and 30x are
-   also available. For each event it:
-   - waits out the scaled time gap since the previous event,
-   - POSTs the event + running history to `/api/banter`,
-   - POSTs each returned line to `/api/tts`,
-   - queues the resulting audio clips so RED and BLUE never talk over each
-     other — the clock only advances to the next event once the current
-     exchange has fully played.
-3. **`/app/api/banter/route.ts`** — one Anthropic call per event. Combines
-   both persona prompts + recent match/commentary history into the system
-   message, forces JSON-only output (stripping code fences if present),
-   parses defensively, and falls back to a generic line if parsing fails or
-   the API errors.
-4. **`/app/api/tts/route.ts`** — takes `{ speaker, text }`, picks the voice ID
-   for that speaker, calls ElevenLabs, and streams back an MP3. If the call
-   fails, the route returns an error and the client falls back to showing
-   the text line with no audio instead of crashing.
-5. **`/app/page.tsx`** — the broadcast UI: scoreboard up top, RED/BLUE
+   speed is 10x; 1x and 30x are also available, each with its own gap cap
+   (15s / 8s / 4s) so no single wait ever drags on too long while still
+   keeping the three speeds meaningfully different. For each event it:
+   - kicks off the banter fetch for the *next* event while the current
+     event's audio is still playing, so network/generation latency overlaps
+     with playback instead of stacking on top of it,
+   - waits out the (capped) scaled time gap since the previous event,
+   - speaks each returned line via the Web Speech API, with RED and BLUE
+     mapped to different voice/pitch/rate profiles so they're audibly
+     distinct,
+   - the clock only advances to the next event once the current exchange has
+     fully played.
+3. **`/app/api/banter/route.ts`** — one Gemini call per event. Combines both
+   persona prompts + recent match/commentary history into the system
+   message, with special-case instructions for the opening kickoff (hyped
+   welcome intro), extra-time and penalty-shootout kickoffs (explicit
+   announcements), goals/penalties (name the player, state the outcome
+   unambiguously), and the final event of the match (announce the winner and
+   close with a proper sign-off). Forces JSON-only output, strips any em/en
+   dashes as a backstop, parses defensively, and falls through the model
+   chain — then to a generic fallback line — if a model's quota is
+   exhausted or its output doesn't parse.
+4. **`/app/page.tsx`** — the broadcast UI: scoreboard up top, RED/BLUE
    split-screen commentators in the middle (glowing avatar while
    speaking), scrolling transcript below, and Start/Pause/Restart + speed
    controls at the bottom.
@@ -123,8 +131,11 @@ Notes on the transform:
 ## Graceful degradation
 
 - Malformed or non-JSON banter responses fall back to a single safe line.
-- Missing/invalid ElevenLabs credentials or a failed TTS call fall back to a
-  text-only transcript line (queue advances after a short fixed pause
-  instead of waiting on audio that will never arrive).
-- Missing `ANTHROPIC_API_KEY` returns the fallback line instead of throwing.
+- If a model in the fallback chain hits its daily quota (`429 /
+  RESOURCE_EXHAUSTED`), the next model in the chain is tried automatically.
+  Only once every model in the chain is exhausted does it fall back to the
+  generic line.
+- Missing `GEMINI_API_KEY` returns the fallback line instead of throwing.
+- If the browser doesn't support the Web Speech API, lines still advance on
+  a short fixed pause instead of waiting on audio that will never arrive.
 - None of these failure paths crash the replay loop — the demo keeps going.
