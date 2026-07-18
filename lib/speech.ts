@@ -83,8 +83,9 @@ export async function getSpeakerVoices(): Promise<
 
   return {
     // Tano: loud, dramatic, quick to celebrate — faster and higher.
-    RED: { voice: redVoice, pitch: 1.3, rate: 1.15 },
-    // Rémy: cool, dry, smug — slower and lower.
-    BLUE: { voice: blueVoice, pitch: 0.7, rate: 0.9 },
+    RED: { voice: redVoice, pitch: 1.3, rate: 1.35 },
+    // Rémy: cool, dry, smug — still slower than RED, but faster overall
+    // than before to keep total match runtime down for demo recordings.
+    BLUE: { voice: blueVoice, pitch: 0.7, rate: 1.1 },
   };
 }
