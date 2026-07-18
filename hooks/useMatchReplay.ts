@@ -215,6 +215,11 @@ export function useMatchReplay(): UseMatchReplayResult {
 
       const events = typedMatchData.events;
       let prevMinute = 0;
+      // Stoppage-time events (e.g. a card at 51' that's still first-half
+      // added time) can appear before the next period's kickoff in event
+      // order. Track the highest minute shown so far so both the clock and
+      // the transcript timestamps only ever move forward.
+      let displayMinute = 0;
       // Holds the in-flight fetch for the event we're about to process,
       // kicked off during the PREVIOUS iteration's audio playback. This
       // overlaps Gemini's network/generation latency with playback and the
@@ -245,11 +250,8 @@ export function useMatchReplay(): UseMatchReplayResult {
 
         if (isCancelled()) return;
 
-        // Stoppage-time events (e.g. a card at 51' that's still first-half
-        // added time) can appear before the next period's kickoff in event
-        // order, which would otherwise make the on-screen clock jump
-        // backward. Never let the displayed minute decrease.
-        setCurrentMinute((prev) => Math.max(prev, event.minute));
+        displayMinute = Math.max(displayMinute, event.minute);
+        setCurrentMinute(displayMinute);
         setCurrentEvent(event);
 
         if (event.type === "goal" && event.team) {
@@ -267,7 +269,7 @@ export function useMatchReplay(): UseMatchReplayResult {
           ? fetchBanter(nextEvent, false, i + 2 === events.length)
           : null;
 
-        await playExchange(lines, event.minute, isCancelled);
+        await playExchange(lines, displayMinute, isCancelled);
         if (isCancelled()) return;
       }
 
