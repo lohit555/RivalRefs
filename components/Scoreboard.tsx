@@ -6,7 +6,7 @@ import type { ReplayStatus } from "@/hooks/useMatchReplay";
 interface ScoreboardProps {
   teamMeta: TeamMeta;
   score: { RED: number; BLUE: number };
-  currentMinute: string;
+  currentMinute: number;
   status: ReplayStatus;
 }
 
