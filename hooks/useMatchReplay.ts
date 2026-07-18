@@ -245,7 +245,11 @@ export function useMatchReplay(): UseMatchReplayResult {
 
         if (isCancelled()) return;
 
-        setCurrentMinute(event.minute);
+        // Stoppage-time events (e.g. a card at 51' that's still first-half
+        // added time) can appear before the next period's kickoff in event
+        // order, which would otherwise make the on-screen clock jump
+        // backward. Never let the displayed minute decrease.
+        setCurrentMinute((prev) => Math.max(prev, event.minute));
         setCurrentEvent(event);
 
         if (event.type === "goal" && event.team) {

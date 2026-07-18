@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
 
   if (matchMeta?.isFirstEvent) {
     specialInstructions.push(
-      `This is the VERY FIRST line of the whole broadcast, before any match action. One commentator opens hyped and enthusiastic, welcoming everyone: something in the spirit of "Ladies and gentlemen, welcome to the match, ${matchMeta.redTeam} vs ${matchMeta.blueTeam}, here we go!" — then the other jumps in with their own hyped-up spin. Full pre-match excitement, not a reaction to a specific play yet.`
+      `This is the VERY FIRST line of the whole broadcast, before any match action or any rivalry banter yet. One commentator opens hyped and enthusiastic, welcoming everyone: something in the spirit of "Ladies and gentlemen, welcome to the match, ${matchMeta.redTeam} vs ${matchMeta.blueTeam}, here we go!" — then the OTHER commentator matches that same excited, hyped energy right back (something like "Yeah, here we go, this is going to be a great one!"), NOT a smug or dismissive rival jab. Both commentators should sound equally pumped for kickoff. Save the rivalry, roasting, and trash talk for after the match actually starts — this opening moment is pure shared excitement from both sides.`
     );
   }
 
