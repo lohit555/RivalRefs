@@ -21,7 +21,7 @@ export type ReplaySpeed = 1 | 10 | 30;
 interface UseMatchReplayResult {
   status: ReplayStatus;
   speed: ReplaySpeed;
-  currentMinute: number;
+  currentMinute: string;
   score: { RED: number; BLUE: number };
   activeSpeaker: Speaker | null;
   transcript: TranscriptEntry[];
@@ -48,6 +48,29 @@ const MAX_GAP_MS_BY_SPEED: Record<ReplaySpeed, number> = {
   10: 8000,
   30: 4000,
 };
+
+// Nominal end-of-period minute, like a real broadcast clock. Stoppage time
+// within a period is shown as "<nominalEnd>+<extra>" (e.g. "45+6") instead
+// of a raw minute that can run past the next period's kickoff and look like
+// the clock jumped backward. Period 5 (the shootout) has no fixed length,
+// so its events just display their own raw minute.
+const PERIOD_NOMINAL_END: Record<number, number> = {
+  1: 45,
+  2: 90,
+  3: 105,
+  4: 120,
+  5: Infinity,
+};
+
+function periodFromKickoffDetail(detail: string): number | null {
+  const match = detail.match(/period (\d+) start/i);
+  return match ? Number(match[1]) : null;
+}
+
+function formatMinuteLabel(rawMinute: number, periodNominalEnd: number): string {
+  if (rawMinute <= periodNominalEnd) return `${rawMinute}`;
+  return `${periodNominalEnd}+${rawMinute - periodNominalEnd}`;
+}
 
 function sleepInterruptible(
   ms: number,
@@ -88,7 +111,7 @@ function nextId() {
 export function useMatchReplay(): UseMatchReplayResult {
   const [status, setStatus] = useState<ReplayStatus>("idle");
   const [speed, setSpeedState] = useState<ReplaySpeed>(10);
-  const [currentMinute, setCurrentMinute] = useState(0);
+  const [currentMinute, setCurrentMinute] = useState("0");
   const [score, setScore] = useState<{ RED: number; BLUE: number }>({
     RED: 0,
     BLUE: 0,
@@ -171,7 +194,7 @@ export function useMatchReplay(): UseMatchReplayResult {
   );
 
   const playExchange = useCallback(
-    async (lines: BanterLine[], minute: number, isCancelled: () => boolean) => {
+    async (lines: BanterLine[], minute: string, isCancelled: () => boolean) => {
       const queue = audioQueueRef.current;
       if (!queue) return;
 
@@ -215,11 +238,13 @@ export function useMatchReplay(): UseMatchReplayResult {
 
       const events = typedMatchData.events;
       let prevMinute = 0;
-      // Stoppage-time events (e.g. a card at 51' that's still first-half
+      // Stoppage-time events (e.g. a card at raw minute 51, still first-half
       // added time) can appear before the next period's kickoff in event
-      // order. Track the highest minute shown so far so both the clock and
-      // the transcript timestamps only ever move forward.
-      let displayMinute = 0;
+      // order. Track which period we're in and its nominal end so stoppage
+      // time displays as "45+6" instead of a raw minute that would look
+      // like it ran past the next period's kickoff.
+      let periodNominalEnd = PERIOD_NOMINAL_END[1];
+      let displayMinuteLabel = "0";
       // Holds the in-flight fetch for the event we're about to process,
       // kicked off during the PREVIOUS iteration's audio playback. This
       // overlaps Gemini's network/generation latency with playback and the
@@ -250,15 +275,17 @@ export function useMatchReplay(): UseMatchReplayResult {
 
         if (isCancelled()) return;
 
-        // Kickoff events mark a new period starting — the clock should
-        // reset to that period's own minute (e.g. 45' for second half),
-        // same as a real broadcast, even if the previous period's stoppage
-        // time ran past it. Every other event still only moves forward.
-        displayMinute =
-          event.type === "kickoff"
-            ? event.minute
-            : Math.max(displayMinute, event.minute);
-        setCurrentMinute(displayMinute);
+        if (event.type === "kickoff") {
+          const period = periodFromKickoffDetail(event.detail);
+          periodNominalEnd =
+            period !== null && period in PERIOD_NOMINAL_END
+              ? PERIOD_NOMINAL_END[period]
+              : event.minute;
+          displayMinuteLabel = `${event.minute}`;
+        } else {
+          displayMinuteLabel = formatMinuteLabel(event.minute, periodNominalEnd);
+        }
+        setCurrentMinute(displayMinuteLabel);
         setCurrentEvent(event);
 
         if (event.type === "goal" && event.team) {
@@ -276,7 +303,7 @@ export function useMatchReplay(): UseMatchReplayResult {
           ? fetchBanter(nextEvent, false, i + 2 === events.length)
           : null;
 
-        await playExchange(lines, displayMinute, isCancelled);
+        await playExchange(lines, displayMinuteLabel, isCancelled);
         if (isCancelled()) return;
       }
 
@@ -322,7 +349,7 @@ export function useMatchReplay(): UseMatchReplayResult {
     historyRef.current = { events: [], lines: [] };
     setTranscript([]);
     setScore({ RED: 0, BLUE: 0 });
-    setCurrentMinute(0);
+    setCurrentMinute("0");
     setCurrentEvent(null);
     setActiveSpeaker(null);
     setStatus("idle");

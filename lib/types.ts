@@ -43,7 +43,9 @@ export interface BanterLine {
 
 export interface TranscriptEntry extends BanterLine {
   id: string;
-  minute: number;
+  // A display label like "45" or "45+6" (stoppage time), not a raw number —
+  // see hooks/useMatchReplay.ts for why.
+  minute: string;
   voiced: boolean;
 }
 
