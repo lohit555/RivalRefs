@@ -43,14 +43,12 @@ export interface SpeakerVoiceProfile {
   rate: number;
 }
 
-// RED (Tano) is loud, passionate, dramatic — a male-leaning voice read faster
-// and higher-pitched fits. BLUE (Rémy) is cool, dry, smug — a contrasting
-// voice read slower and lower-pitched fits. We actively search for two
-// voices that sound different (by name hint, not just index order), and
-// push pitch/rate further apart on top so the two are unmistakable even if
-// the system only exposes one or two English voices.
+// Both Tano and Rémy are written as men (see lib/personas.ts) — so both
+// speakers should use male-sounding system voices, never a female one.
+// They're distinguished by pitch (Tano higher/brighter, Rémy lower/smoother)
+// and, when the system offers more than one male-sounding voice, by using
+// two different ones. Speaking rate is kept equal for both.
 const MALE_HINTS = ["male", "david", "guy", "mark", "daniel", "george", "james", "alex"];
-const FEMALE_HINTS = ["female", "zira", "susan", "samantha", "victoria", "karen", "linda"];
 
 function scoreVoiceFor(voice: SpeechSynthesisVoice, hints: string[]): number {
   const name = voice.name.toLowerCase();
@@ -64,29 +62,23 @@ export async function getSpeakerVoices(): Promise<
   const englishVoices = voices.filter((v) => v.lang.toLowerCase().startsWith("en"));
   const pool = englishVoices.length > 0 ? englishVoices : voices;
 
-  let redVoice: SpeechSynthesisVoice | null = null;
-  let blueVoice: SpeechSynthesisVoice | null = null;
+  const sortedByMale = [...pool].sort(
+    (a, b) => scoreVoiceFor(b, MALE_HINTS) - scoreVoiceFor(a, MALE_HINTS)
+  );
 
-  if (pool.length > 0) {
-    const sortedForRed = [...pool].sort(
-      (a, b) => scoreVoiceFor(b, MALE_HINTS) - scoreVoiceFor(a, MALE_HINTS)
-    );
-    redVoice = sortedForRed[0];
-
-    const remaining = pool.filter((v) => v !== redVoice);
-    const candidates = remaining.length > 0 ? remaining : pool;
-    const sortedForBlue = [...candidates].sort(
-      (a, b) => scoreVoiceFor(b, FEMALE_HINTS) - scoreVoiceFor(a, FEMALE_HINTS)
-    );
-    blueVoice = sortedForBlue[0];
-  }
+  const redVoice = sortedByMale[0] ?? null;
+  // Prefer a second, distinct male-sounding voice for BLUE if the system has
+  // one; otherwise both speakers share the same voice, told apart by pitch.
+  const secondMaleVoice =
+    sortedByMale.find(
+      (v) => v !== redVoice && scoreVoiceFor(v, MALE_HINTS) === 1
+    ) ?? null;
+  const blueVoice = secondMaleVoice ?? redVoice;
 
   return {
-    // Tano: loud, dramatic, quick to celebrate — faster and higher.
-    // Kept moderate (not pushed higher) since faster rates start slurring
-    // words and hurt clarity on some system TTS voices.
-    RED: { voice: redVoice, pitch: 1.3, rate: 1.15 },
-    // Rémy: cool, dry, smug — slower and lower.
-    BLUE: { voice: blueVoice, pitch: 0.7, rate: 0.9 },
+    // Tano: loud, dramatic, quick to celebrate — brighter/higher pitch.
+    RED: { voice: redVoice, pitch: 1.3, rate: 1.0 },
+    // Rémy: cool, dry, smug — lower pitch. Same rate as RED.
+    BLUE: { voice: blueVoice, pitch: 0.75, rate: 1.0 },
   };
 }
