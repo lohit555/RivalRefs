@@ -70,14 +70,20 @@ export async function getSpeakerVoices(): Promise<
     (a, b) => scoreVoiceFor(b, MALE_HINTS) - scoreVoiceFor(a, MALE_HINTS)
   );
 
-  const redVoice = sortedByMale[0] ?? null;
-  // Prefer a second, distinct male-sounding voice for BLUE if the system has
-  // one; otherwise both speakers share the same voice, told apart by pitch.
-  const secondMaleVoice =
-    sortedByMale.find(
-      (v) => v !== redVoice && scoreVoiceFor(v, MALE_HINTS) === 1
-    ) ?? null;
-  const blueVoice = secondMaleVoice ?? redVoice;
+  const maleVoices = sortedByMale.filter(
+    (v) => scoreVoiceFor(v, MALE_HINTS) === 1
+  );
+  const redVoice = maleVoices[0] ?? sortedByMale[0] ?? null;
+
+  // Two voices from the same engine/accent (e.g. "Microsoft David" and
+  // "Microsoft Mark") can sound too similar even with different pitch.
+  // Prefer a second male voice with a DIFFERENT accent/locale than RED's —
+  // that reads as a genuinely different voice, not just a pitch shift.
+  const differentAccentMale = maleVoices.find(
+    (v) => v !== redVoice && v.lang !== redVoice?.lang
+  );
+  const anyOtherMale = maleVoices.find((v) => v !== redVoice);
+  const blueVoice = differentAccentMale ?? anyOtherMale ?? redVoice;
 
   return {
     // Tano: loud, dramatic, quick to celebrate — brighter/higher pitch.
