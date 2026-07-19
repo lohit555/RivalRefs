@@ -66,24 +66,31 @@ export async function getSpeakerVoices(): Promise<
   const englishVoices = voices.filter((v) => v.lang.toLowerCase().startsWith("en"));
   const pool = englishVoices.length > 0 ? englishVoices : voices;
 
-  const sortedByMale = [...pool].sort(
-    (a, b) => scoreVoiceFor(b, MALE_HINTS) - scoreVoiceFor(a, MALE_HINTS)
-  );
+  // Prefer voices that run locally (no network round-trip needed) over
+  // "network" voices like Chrome's "Google UK English Male" — network
+  // voices can silently fail to load or fall back to a default without any
+  // error, which is what made RED and BLUE sound identical previously.
+  // Reliability comes first; accent/engine variety is a secondary bonus.
+  const sorted = [...pool].sort((a, b) => {
+    const maleScore = scoreVoiceFor(b, MALE_HINTS) - scoreVoiceFor(a, MALE_HINTS);
+    if (maleScore !== 0) return maleScore;
+    const localScore = Number(b.localService) - Number(a.localService);
+    return localScore;
+  });
 
-  const maleVoices = sortedByMale.filter(
-    (v) => scoreVoiceFor(v, MALE_HINTS) === 1
-  );
-  const redVoice = maleVoices[0] ?? sortedByMale[0] ?? null;
+  const maleVoices = sorted.filter((v) => scoreVoiceFor(v, MALE_HINTS) === 1);
+  const redVoice = maleVoices[0] ?? sorted[0] ?? null;
 
-  // Two voices from the same engine/accent (e.g. "Microsoft David" and
-  // "Microsoft Mark") can sound too similar even with different pitch.
-  // Prefer a second male voice with a DIFFERENT accent/locale than RED's —
-  // that reads as a genuinely different voice, not just a pitch shift.
-  const differentAccentMale = maleVoices.find(
-    (v) => v !== redVoice && v.lang !== redVoice?.lang
+  // Among the remaining male voices, prefer one that's both reliable
+  // (local) AND sounds different (different accent/locale) from RED's —
+  // but never sacrifice reliability just for accent variety.
+  const remainingMale = maleVoices.filter((v) => v !== redVoice);
+  const localDifferentAccent = remainingMale.find(
+    (v) => v.localService && v.lang !== redVoice?.lang
   );
-  const anyOtherMale = maleVoices.find((v) => v !== redVoice);
-  const blueVoice = differentAccentMale ?? anyOtherMale ?? redVoice;
+  const anyLocal = remainingMale.find((v) => v.localService);
+  const anyOther = remainingMale[0];
+  const blueVoice = localDifferentAccent ?? anyLocal ?? anyOther ?? redVoice;
 
   return {
     // Tano: loud, dramatic, quick to celebrate — brighter/higher pitch.
