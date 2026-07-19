@@ -223,9 +223,13 @@ Generate the next exchange now. JSON array only.`;
         lines = await callGemini(ai, model);
         break;
       } catch (err) {
-        const isQuotaExhausted = err instanceof ApiError && err.status === 429;
-        if (isQuotaExhausted && !isLastModel) {
-          console.error(`${model} quota exhausted, falling through to next model`);
+        // 429 = quota exhausted, 503 = temporarily overloaded on Google's
+        // end. Both are recoverable by trying the next model in the chain
+        // instead of giving up immediately.
+        const isRecoverable =
+          err instanceof ApiError && (err.status === 429 || err.status === 503);
+        if (isRecoverable && !isLastModel) {
+          console.error(`${model} failed (${err.status}), falling through to next model`);
           continue;
         }
         throw err;
