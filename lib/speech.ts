@@ -52,6 +52,10 @@ const MALE_HINTS = ["male", "david", "guy", "mark", "daniel", "george", "james",
 
 function scoreVoiceFor(voice: SpeechSynthesisVoice, hints: string[]): number {
   const name = voice.name.toLowerCase();
+  // "female" contains the substring "male" (fe-male), so a naive substring
+  // check would wrongly score a voice named e.g. "Google UK English Female"
+  // as male-matching. Explicitly exclude anything actually labeled female.
+  if (name.includes("female")) return 0;
   return hints.some((h) => name.includes(h)) ? 1 : 0;
 }
 
